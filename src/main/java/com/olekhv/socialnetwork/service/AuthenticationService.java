@@ -1,5 +1,6 @@
 package com.olekhv.socialnetwork.service;
 
+import com.olekhv.socialnetwork.config.JwtAuthFilter;
 import com.olekhv.socialnetwork.config.JwtService;
 import com.olekhv.socialnetwork.dto.AuthenticationResponse;
 import com.olekhv.socialnetwork.dto.AuthorizationRequest;
@@ -7,14 +8,17 @@ import com.olekhv.socialnetwork.dto.RegisterRequest;
 import com.olekhv.socialnetwork.exception.UserAlreadyExistsException;
 import com.olekhv.socialnetwork.model.user.User;
 import com.olekhv.socialnetwork.model.userCredential.UserCredential;
+import com.olekhv.socialnetwork.model.userCredential.UserRole;
 import com.olekhv.socialnetwork.repository.UserCredentialRepository;
 import com.olekhv.socialnetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,7 @@ public class AuthenticationService {
                 .user(user)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(UserRole.USER)
                 .build();
 
         userCredentialRepository.save(userCredential);
@@ -78,5 +83,15 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .build();
+    }
+
+    public UserCredential getAuthorizedUser(){
+        return (UserCredential) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    public User getAuthorizedUserInfo(){
+        log.info("here2");
+        log.info(String.valueOf(getAuthorizedUserInfo()));
+        return getAuthorizedUserInfo();
     }
 }
